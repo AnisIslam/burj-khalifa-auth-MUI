@@ -8,12 +8,12 @@ import { useHistory, useLocation } from 'react-router';
 
 const Login = () => {
     const [loggedInUser, setLoggedInUser] = useContext(UserContext);
-    
+
     //go to login page from desired page after burden
     const history = useHistory();
     const location = useLocation();
-    const {from} = location.state || {from: {pathname : "/"}};
- 
+    const { from } = location.state || { from: { pathname: "/" } };
+
     if (firebase.apps.length === 0) {
         firebase.initializeApp(firebaseConfig);
 
@@ -26,7 +26,7 @@ const Login = () => {
                 const { displayName, email } = result.user;
                 const signedInUser = { name: displayName, email };
                 setLoggedInUser(signedInUser);
-                history.replace(from);
+                storeAuthToken();
 
             }).catch((error) => {
                 // Handle Errors here.
@@ -39,6 +39,17 @@ const Login = () => {
                 // ...
             });
 
+    }
+
+    const storeAuthToken = () => {
+        firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
+        .then(function (idToken) {
+            sessionStorage.setItem('token', idToken);
+            history.replace(from);
+
+        }).catch(function (error) {
+            // Handle error
+        });
     }
     return (
         <div>
